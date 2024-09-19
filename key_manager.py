@@ -41,9 +41,9 @@ class KeyManager:
                 raise ValueError(f"Key not found: {key_id}")
             
             if key_data['type'] == 'RSA':
-                return RSA.import_key(key_data['private_key'].encode('utf-8') if isinstance(key_data['private_key'], str) else key_data['private_key'])
+                return RSA.import_key(key_data['private_key'])
             elif key_data['type'] == 'ECC':
-                return ECC.import_key(key_data['private_key'].encode('utf-8') if isinstance(key_data['private_key'], str) else key_data['private_key'])
+                return ECC.import_key(key_data['private_key'])
         except Exception as e:
             logger.error(f"Error retrieving key {key_id}: {str(e)}")
             raise
@@ -53,7 +53,11 @@ class KeyManager:
             key_data = self.keys.get(key_id)
             if not key_data:
                 raise ValueError(f"Key not found: {key_id}")
-            return key_data['public_key']
+            
+            if key_data['type'] == 'RSA':
+                return RSA.import_key(key_data['public_key'])
+            elif key_data['type'] == 'ECC':
+                return ECC.import_key(key_data['public_key'])
         except Exception as e:
             logger.error(f"Error retrieving public key for {key_id}: {str(e)}")
             raise

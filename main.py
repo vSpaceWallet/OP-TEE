@@ -30,11 +30,25 @@ def passkey_auth():
 def issue_credential():
     data = request.json
     try:
-        signature_type = data.get('signatureType', 'ECDSA')
-        credential = wallet.issue_credential(data, signature_type)
+        signature_type = data.get('signatureType', 'Certifiable Schnorr')
+        logger.info(f"Issuing credential with signature type: {signature_type}")
+        
+        if signature_type == "Certifiable Schnorr":
+            logger.debug("Starting Certifiable Schnorr signature process")
+            try:
+                credential = wallet.issue_credential(data, signature_type)
+                logger.debug("Certifiable Schnorr signature created successfully")
+            except Exception as e:
+                logger.error(f"Error creating Certifiable Schnorr signature: {str(e)}", exc_info=True)
+                return jsonify({"error": f"Error creating Certifiable Schnorr signature: {str(e)}"}), 500
+        else:
+            credential = wallet.issue_credential(data, signature_type)
+        
+        logger.info("Credential issued successfully")
         return jsonify(credential)
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error issuing credential: {str(e)}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/get_credentials', methods=['GET'])
 def get_credentials():
@@ -48,7 +62,7 @@ def get_credential_types():
 
 @app.route('/get_signature_types', methods=['GET'])
 def get_signature_types():
-    signature_types = ["ECDSA", "BoundBBS", "CL", "Schnorr"]
+    signature_types = ["Certifiable Schnorr", "BoundBBS", "CL", "ECDSA"]
     return jsonify(signature_types)
 
 @app.route('/generate_qr/<int:credential_id>')
@@ -170,4 +184,4 @@ if __name__ == '__main__':
     signature_test_results = wallet.test_all_signatures()
     logger.debug(f"Signature Test Results: {signature_test_results}")
     
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)

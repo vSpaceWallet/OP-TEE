@@ -1,6 +1,8 @@
+from ecdsa import SigningKey, VerifyingKey, SECP256k1, BadSignatureError
 from Crypto.PublicKey import RSA, ECC
 from Crypto.Signature import pkcs1_15, DSS
 from Crypto.Hash import SHA256
+import hashlib
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -60,12 +62,41 @@ class ECDSASignature:
             return False
 
 class SchnorrSignature:
-    def sign(self, message, key):
-        # Implement Schnorr signing
-        # This is a placeholder implementation
-        return "Schnorr_" + message.encode('utf-8').hex()
+    def sign(self, message, private_key_hex):
+        message_hash = hashlib.sha256(message.encode('utf-8')).digest()
+        
+        # Extract the 32-byte private key from the DER format
+        private_key_bytes = bytes.fromhex(private_key_hex)
+        if len(private_key_bytes) != 32:
+            der = ECC.import_key(private_key_bytes)
+            private_key_bytes = der.d.to_bytes(32, 'big')
+        
+        sk = SigningKey.from_string(private_key_bytes, curve=SECP256k1)
+        signature = sk.sign(message_hash)
+        
+        logger.debug("Message to sign: %s", message)
+        logger.debug("Generated hash: %s", message_hash.hex())
+        logger.debug("Private key length: %d", len(private_key_bytes))
+        logger.debug("Schnorr Signature generated for message: %s", message)
+        logger.debug("Signature: %s", signature.hex())
+        
+        return signature.hex()
 
-    def verify(self, message, signature, public_key):
-        # Implement Schnorr verification
-        # This is a placeholder implementation
-        return signature.startswith("Schnorr_") and signature[8:] == message.encode('utf-8').hex()
+    def verify(self, message, signature_hex, public_key_hex):
+        message_hash = hashlib.sha256(message.encode('utf-8')).digest()
+        
+        vk = VerifyingKey.from_string(bytes.fromhex(public_key_hex), curve=SECP256k1)
+        
+        logger.debug("Message to verify: %s", message)
+        logger.debug("Generated hash: %s", message_hash.hex())
+        logger.debug("Public key used for verification: %s", public_key_hex)
+        logger.debug("Signature to verify: %s", signature_hex)
+        
+        try:
+            vk.verify(bytes.fromhex(signature_hex), message_hash)
+            logger.debug("Schnorr Signature verified successfully for message: %s", message)
+            return True
+        except BadSignatureError as e:
+            logger.error("Schnorr Signature verification failed for message: %s", message)
+            logger.error("Error: %s", str(e))
+            return False

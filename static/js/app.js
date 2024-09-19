@@ -34,7 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadSignatureTypes() {
         const response = await fetch('/get_signature_types');
         const types = await response.json();
-        signatureTypeSelect.innerHTML = types.map(type => `<option value="${type}"${type === 'ECDSA' ? ' selected' : ''}>${type}</option>`).join('');
+        signatureTypeSelect.innerHTML = types.map(type => 
+            `<option value="${type}"${type === 'Certifiable Schnorr' ? ' selected' : ''}>${type}</option>`
+        ).join('');
     }
 
     issueForm.addEventListener('submit', async (e) => {

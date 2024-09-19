@@ -4,6 +4,7 @@ from crypto import CLSignature, BoundBBSSignature, ECDSASignature, SchnorrSignat
 from credential_schemas import validate_credential_subject, get_credential_types
 from key_manager import KeyManager
 import logging
+from Crypto.PublicKey import RSA, ECC
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -17,7 +18,7 @@ class Wallet:
         self.ecdsa_signature = ECDSASignature()
         self.schnorr_signature = SchnorrSignature()
 
-    def issue_credential(self, data, signature_type="ECDSA"):
+    def issue_credential(self, data, signature_type="Certifiable Schnorr"):
         if not validate_credential_subject(data["type"], data["credentialSubject"]):
             raise ValueError("Invalid credential subject data")
 
@@ -45,9 +46,11 @@ class Wallet:
         elif signature_type == "ECDSA":
             signature = self.ecdsa_signature.sign(json.dumps(credential), key)
             proof_type = "EcdsaSecp256k1Signature2019"
-        elif signature_type == "Schnorr":
-            signature = self.schnorr_signature.sign(json.dumps(credential), key)
-            proof_type = "SchnorrSignature2021"
+        elif signature_type == "Certifiable Schnorr":
+            private_key_bytes = key.export_key(format='DER')
+            private_key_hex = private_key_bytes.hex()
+            signature = self.schnorr_signature.sign(json.dumps(credential), private_key_hex)
+            proof_type = "CertifiableSchnorrSignature2021"
         else:
             raise ValueError("Unsupported signature type")
 
@@ -81,8 +84,10 @@ class Wallet:
             is_valid = self.bound_bbs_signature.verify(json.dumps(credential_without_proof), signature, public_key)
         elif signature_type == "EcdsaSecp256k1Signature2019":
             is_valid = self.ecdsa_signature.verify(json.dumps(credential_without_proof), signature, public_key)
-        elif signature_type == "SchnorrSignature2021":
-            is_valid = self.schnorr_signature.verify(json.dumps(credential_without_proof), signature, public_key)
+        elif signature_type == "CertifiableSchnorrSignature2021":
+            public_key_bytes = public_key.export_key(format='DER')
+            public_key_hex = public_key_bytes.hex()
+            is_valid = self.schnorr_signature.verify(json.dumps(credential_without_proof), signature, public_key_hex)
         else:
             raise ValueError("Unsupported signature type")
 
@@ -119,29 +124,37 @@ class Wallet:
         test_message = "Test message for all signature types"
         results = {}
 
-        for signature_type in ["CL", "BoundBBS", "ECDSA", "Schnorr"]:
+        for signature_type in ["CL", "BoundBBS", "ECDSA", "Certifiable Schnorr"]:
             logger.debug(f"Testing {signature_type} signature")
             key_type = 'RSA' if signature_type in ['CL', 'BoundBBS'] else 'ECC'
             key_id = self.key_manager.generate_key(key_type)
             key = self.key_manager.get_key(key_id)
             public_key = self.key_manager.get_public_key(key_id)
 
-            if signature_type == "CL":
-                signature = self.cl_signature.sign(test_message, key)
-                verification_result = self.cl_signature.verify(test_message, signature, public_key)
-            elif signature_type == "BoundBBS":
-                signature = self.bound_bbs_signature.sign(test_message, key)
-                verification_result = self.bound_bbs_signature.verify(test_message, signature, public_key)
-            elif signature_type == "ECDSA":
-                signature = self.ecdsa_signature.sign(test_message, key)
-                verification_result = self.ecdsa_signature.verify(test_message, signature, public_key)
-            elif signature_type == "Schnorr":
-                signature = self.schnorr_signature.sign(test_message, key)
-                verification_result = self.schnorr_signature.verify(test_message, signature, public_key)
+            try:
+                if signature_type == "CL":
+                    signature = self.cl_signature.sign(test_message, key)
+                    verification_result = self.cl_signature.verify(test_message, signature, public_key)
+                elif signature_type == "BoundBBS":
+                    signature = self.bound_bbs_signature.sign(test_message, key)
+                    verification_result = self.bound_bbs_signature.verify(test_message, signature, public_key)
+                elif signature_type == "ECDSA":
+                    signature = self.ecdsa_signature.sign(test_message, key)
+                    verification_result = self.ecdsa_signature.verify(test_message, signature, public_key)
+                elif signature_type == "Certifiable Schnorr":
+                    private_key_bytes = key.export_key(format='DER')
+                    private_key_hex = private_key_bytes.hex()
+                    public_key_bytes = public_key.export_key(format='DER')
+                    public_key_hex = public_key_bytes.hex()
+                    signature = self.schnorr_signature.sign(test_message, private_key_hex)
+                    verification_result = self.schnorr_signature.verify(test_message, signature, public_key_hex)
 
-            logger.debug(f"Test message: {test_message}")
-            logger.debug(f"Generated signature: {signature}")
-            logger.debug(f"Verification result: {verification_result}")
-            results[signature_type] = verification_result
+                logger.debug(f"Test message: {test_message}")
+                logger.debug(f"Generated signature: {signature}")
+                logger.debug(f"Verification result: {verification_result}")
+                results[signature_type] = verification_result
+            except Exception as e:
+                logger.error(f"Error testing {signature_type} signature: {str(e)}")
+                results[signature_type] = False
 
         return results
