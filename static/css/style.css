@@ -1,0 +1,134 @@
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #333;
+    font-size: 24px;
+}
+
+h2 {
+    font-size: 20px;
+}
+
+button, .button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    width: 100%;
+    max-width: 300px;
+}
+
+button:hover, .button:hover {
+    background-color: #45a049;
+}
+
+input[type="text"], textarea, select {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#credentialsList {
+    margin-top: 20px;
+}
+
+.credential {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+#qr-reader {
+    max-width: 100%;
+    margin: 20px 0;
+}
+
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+@media screen and (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    button, .button {
+        width: 100%;
+        margin: 5px 0;
+        max-width: none;
+    }
+
+    input[type="text"], textarea, select {
+        font-size: 14px;
+    }
+
+    .credential {
+        font-size: 14px;
+    }
+
+    #qr-reader {
+        width: 100% !important;
+    }
+
+    #instructions ol {
+        padding-left: 20px;
+    }
+
+    #instructions ol ol {
+        padding-left: 15px;
+    }
+
+    pre {
+        font-size: 12px;
+    }
+}

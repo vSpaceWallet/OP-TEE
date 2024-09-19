@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>W3C Verifiable Credentials Wallet Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>W3C Verifiable Credentials Wallet Demo</h1>
+
+        <div id="instructions">
+            <h2>Instructions</h2>
+            <ol>
+                <li>Open the web application in your browser (it should be running on port 5000).</li>
+                <li>To issue a credential:
+                    <ol type="a">
+                        <li>Select the credential type from the dropdown menu (e.g., mVAC, mDL, eID).</li>
+                        <li>Choose the signature type (CL, BoundBBS, ECDSA, or Schnorr).</li>
+                        <li>Enter the credential subject data in JSON format in the text area.</li>
+                        <li>Click the "Issue Credential" button.</li>
+                    </ol>
+                </li>
+                <li>View issued credentials in the "Issued Credentials" section at the bottom of the page.</li>
+                <li>QR codes for issued credentials are automatically generated and displayed.</li>
+                <li>Use the "Scan QR Code" button to scan and input credential data.</li>
+            </ol>
+        </div>
+
+        <h2>Issue Credential</h2>
+        <form id="issueForm">
+            <label for="credentialType">Credential Type:</label>
+            <select id="credentialType" required></select>
+            <label for="signatureType">Signature Type:</label>
+            <select id="signatureType" required></select>
+            <label for="credentialSubject">Credential Subject (JSON):</label>
+            <textarea id="credentialSubject" rows="4" required placeholder='{"voterID": "V123456789", "electionAuthority": "National Election Commission", "expirationDate": "2025-12-31"}'></textarea>
+            <button type="button" id="scanQRCode">Scan QR Code</button>
+            <button type="submit">Issue Credential</button>
+        </form>
+
+        <div id="qr-reader" style="width: 100%; max-width: 300px; margin: 20px auto;"></div>
+
+        <h2>Issued Credentials</h2>
+        <div id="credentialsList"></div>
+
+        <div id="qrCodeDisplay"></div>
+
+        <a href="/passkey_auth" class="button">Access Secure Area</a>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
