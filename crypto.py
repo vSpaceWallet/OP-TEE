@@ -12,6 +12,8 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
+## https://github.com/hyperledger-archives/indy-anoncreds/blob/master/anoncreds/test/test_anoncred_usage.py
+## https://github.com/hyperledger-archives/indy-anoncreds/blob/master/anoncreds/protocol/wallet/wallet.py
 class CLSignature:
 
     def sign(self, message, key):
@@ -29,6 +31,7 @@ class CLSignature:
             return False
 
 
+## https://github.com/mattrglobal/jsonld-signatures-bbs/blob/master/src/BbsBlsSignature2020.ts
 class BoundBBSSignature:
 
     def sign(self, message, key):
@@ -92,6 +95,7 @@ class SchnorrSignature:
 
 # ECDSA (curve=SECP256k1) # !(FIPS-186-3)
 class ECDSASignature:
+
     # def sign(self, message, private_key_hex):
     def sign(self, message, private_key):
         # Create a hash of the message
@@ -158,29 +162,29 @@ class ECDSASignature:
 
 # # ECDSA (FIPS-186-3) # !(curve=SECP256k1)
 # class ECDSASignature:
-# def sign(self, message, key):
-# hash = SHA256.new(message.encode('utf-8'))
-# signer = DSS.new(key, 'fips-186-3')
-# signature = signer.sign(hash)
-# logger.debug("Message to sign: %s", message)
-# logger.debug("Generated hash: %s", hash.hexdigest())
-# logger.debug("Public key used for signing: %s", key.public_key().export_key(format='PEM'))
-# logger.debug("ECDSA Signature generated for message: %s", message)
-# logger.debug("Signature: %s", signature.hex())
-# return signature.hex()
+    # def sign(self, message, key):
+        # hash = SHA256.new(message.encode('utf-8'))
+        # signer = DSS.new(key, 'fips-186-3')
+        # signature = signer.sign(hash)
+        # logger.debug("Message to sign: %s", message)
+        # logger.debug("Generated hash: %s", hash.hexdigest())
+        # logger.debug("Public key used for signing: %s", key.public_key().export_key(format='PEM'))
+        # logger.debug("ECDSA Signature generated for message: %s", message)
+        # logger.debug("Signature: %s", signature.hex())
+        # return signature.hex()
 
-# def verify(self, message, signature, public_key):
-# hash = SHA256.new(message.encode('utf-8'))
-# verifier = DSS.new(ECC.import_key(public_key), 'fips-186-3')
-# logger.debug("Message to verify: %s", message)
-# logger.debug("Generated hash: %s", hash.hexdigest())
-# logger.debug("Public key used for verification: %s", public_key)
-# logger.debug("Signature to verify: %s", signature)
-# try:
-# verifier.verify(hash, bytes.fromhex(signature))
-# logger.debug("ECDSA Signature verified successfully for message: %s", message)
-# return True
-# except ValueError as e:
-# logger.error("ECDSA Signature verification failed for message: %s", message)
-# logger.error("Error: %s", str(e))
-# return False
+    # def verify(self, message, signature, public_key):
+        # hash = SHA256.new(message.encode('utf-8'))
+        # verifier = DSS.new(ECC.import_key(public_key), 'fips-186-3')
+        # logger.debug("Message to verify: %s", message)
+        # logger.debug("Generated hash: %s", hash.hexdigest())
+        # logger.debug("Public key used for verification: %s", public_key)
+        # logger.debug("Signature to verify: %s", signature)
+        # try:
+            # verifier.verify(hash, bytes.fromhex(signature))
+            # logger.debug("ECDSA Signature verified successfully for message: %s", message)
+            # return True
+        # except ValueError as e:
+            # logger.error("ECDSA Signature verification failed for message: %s", message)
+            # logger.error("Error: %s", str(e))
+            # return False
